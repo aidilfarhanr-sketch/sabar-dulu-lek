@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Sabar Dulu Lek</title>
+  <style>
+    :root{
+      --navy:#10182f;
+      --navy2:#172447;
+      --purple:#9d7cff;
+      --cyan:#64e7ff;
+      --pink:#ff9fc7;
+      --peach:#ffd2b8;
+      --mint:#9cf5cf;
+      --white:rgba(255,255,255,.92);
+      --glass:rgba(255,255,255,.14);
+      --line:rgba(255,255,255,.24);
+      --shadow:0 24px 70px rgba(0,0,0,.28);
+      --radius:28px;
+      --safe-top:env(safe-area-inset-top,0px);
+      --safe-bottom:env(safe-area-inset-bottom,0px);
+    }
+
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{
+      width:100%;min-height:100%;margin:0;overflow-x:hidden;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--white);
+      background:
+        radial-gradient(circle at 16% 8%, rgba(100,231,255,.30), transparent 30%),
+        radial-gradient(circle at 88% 18%, rgba(255,159,199,.26), transparent 35%),
+        radial-gradient(circle at 42% 90%, rgba(156,245,207,.22), transparent 36%),
+        linear-gradient(135deg,#10182f 0%,#20295a 48%,#42275d 100%);
+      touch-action:manipulation;user-select:none;
+    }
+    body{min-height:100svh}
+    button{border:none;cursor:pointer;touch-action:manipulation;font:inherit}
+    .app{position:relative;min-height:100svh;overflow:hidden;padding:calc(18px + var(--safe-top)) 16px calc(18px + var(--safe-bottom))}
+    .bg-orb{position:fixed;width:42vmax;height:42vmax;border-radius:50%;filter:blur(38px);opacity:.23;pointer-events:none;animation:drift 12s ease-in-out infinite alternate}
+    .bg-orb.one{left:-12vmax;top:-15vmax;background:var(--cyan)}
+    .bg-orb.two{right:-14vmax;bottom:-16vmax;background:var(--pink);animation-delay:-4s}
+    .bg-orb.three{left:35%;bottom:-24vmax;background:var(--mint);animation-delay:-7s}
+    @keyframes drift{from{transform:translate3d(-12px,8px,0) scale(1)}to{transform:translate3d(18px,-12px,0) scale(1.08)}}
+
+    .screen{position:relative;z-index:2;min-height:calc(100svh - 36px - var(--safe-top) - var(--safe-bottom));display:none;width:min(1120px,100%);margin:0 auto;animation:fadeUp .35s ease both}
+    .screen.active{display:flex}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .center{align-items:center;justify-content:center;text-align:center}
+    .stack{flex-direction:column;gap:18px}
+    .glass{background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(255,255,255,.08));border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:var(--radius)}
+    .loading-logo{width:min(520px,92vw);padding:36px 24px}
+    .loading-title{font-size:clamp(2.2rem,8vw,4.6rem);line-height:1;font-weight:950;letter-spacing:-.06em;margin:0;text-shadow:0 0 22px rgba(100,231,255,.35)}
+    .loading-sub{margin:18px auto 0;opacity:.86;max-width:520px;line-height:1.5;font-size:clamp(.95rem,3vw,1.08rem)}
+    .loader{width:min(320px,72vw);height:12px;margin:24px auto 0;border-radius:99px;overflow:hidden;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18)}
+    .loader span{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--cyan),var(--pink),var(--mint));animation:load 2.3s ease forwards}
+    @keyframes load{to{width:100%}}
+
+    .hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(240px,.85fr);gap:22px;align-items:center;padding:18px 0}
+    .hero-card{padding:clamp(22px,4vw,42px);text-align:left}
+    .hero-top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);font-weight:750;font-size:.93rem;margin-bottom:0}
+    .lang-switch{display:inline-flex;align-items:center;gap:8px;padding:6px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+    .lang-chip{min-height:40px;padding:9px 12px;border-radius:999px;background:transparent;color:rgba(255,255,255,.84);font-weight:800;font-size:.88rem;letter-spacing:-.01em;box-shadow:none}
+    .lang-chip:hover,.lang-chip:focus-visible{background:rgba(255,255,255,.10);color:#fff;outline:none}
+    .lang-chip.active{background:linear-gradient(135deg,rgba(100,231,255,.25),rgba(157,124,255,.32));color:#fff;border:1px solid rgba(255,255,255,.18);box-shadow:0 10px 24px rgba(17,24,39,.16)}
+    h1{font-size:clamp(2.65rem,8vw,5.5rem);line-height:.94;margin:0 0 14px;letter-spacing:-.07em}
+    .subtitle{font-size:clamp(1rem,2.8vw,1.25rem);line-height:1.6;opacity:.9;margin:0 0 20px;max-width:720px}
+    .buddy-wrap{min-height:360px;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden}
+    .buddy-aura{position:absolute;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(100,231,255,.32),transparent 64%);animation:pulseSoft 3s ease-in-out infinite}
+    @keyframes pulseSoft{0%,100%{transform:scale(.95);opacity:.65}50%{transform:scale(1.12);opacity:1}}
+    .buddy{position:relative;width:clamp(142px,35vw,220px);aspect-ratio:1;border-radius:42% 42% 46% 46%;background:radial-gradient(circle at 32% 38%,#fff 0 8px,transparent 9px),radial-gradient(circle at 68% 38%,#fff 0 8px,transparent 9px),radial-gradient(circle at 32% 38%,#20295a 0 4px,transparent 5px),radial-gradient(circle at 68% 38%,#20295a 0 4px,transparent 5px),radial-gradient(circle at 50% 68%,rgba(255,255,255,.38) 0 14%,transparent 15%),linear-gradient(135deg,var(--mint),var(--cyan) 45%,var(--purple));box-shadow:0 26px 70px rgba(0,0,0,.28),inset 0 -18px 34px rgba(21,31,64,.18);animation:float 3.8s ease-in-out infinite}
+    .buddy:before,.buddy:after{content:"";position:absolute;top:47%;width:34px;height:16px;border-radius:99px;background:rgba(255,159,199,.58);filter:blur(.2px)}
+    .buddy:before{left:17%}.buddy:after{right:17%}
+    .buddy .mouth{position:absolute;left:50%;top:54%;width:42px;height:20px;transform:translateX(-50%);border-bottom:5px solid rgba(25,35,72,.85);border-radius:0 0 999px 999px}
+    .buddy.calm .mouth{width:36px;border-bottom:none;height:8px;background:rgba(25,35,72,.80);border-radius:999px;top:58%}
+    .buddy.hype{animation:float 2.6s ease-in-out infinite;background:radial-gradient(circle at 32% 38%,#fff 0 8px,transparent 9px),radial-gradient(circle at 68% 38%,#fff 0 8px,transparent 9px),radial-gradient(circle at 32% 38%,#20295a 0 4px,transparent 5px),radial-gradient(circle at 68% 38%,#20295a 0 4px,transparent 5px),radial-gradient(circle at 50% 70%,rgba(255,255,255,.44) 0 16%,transparent 17%),linear-gradient(135deg,#ffdd87,var(--pink),var(--purple))}
+    .buddy.proud{background:radial-gradient(circle at 32% 38%,#fff 0 8px,transparent 9px),radial-gradient(circle at 68% 38%,#fff 0 8px,transparent 9px),radial-gradient(circle at 32% 38%,#20295a 0 4px,transparent 5px),radial-gradient(circle at 68% 38%,#20295a 0 4px,transparent 5px),radial-gradient(circle at 50% 67%,rgba(255,255,255,.42) 0 15%,transparent 16%),linear-gradient(135deg,#9cf5cf,#64e7ff,#ff9fc7)}
+    @keyframes float{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-16px) rotate(1.5deg)}}
+    .speech{position:absolute;left:50%;bottom:25px;transform:translateX(-50%);width:min(310px,86%);padding:13px 15px;border-radius:20px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.20);line-height:1.4;font-size:.95rem;box-shadow:0 16px 36px rgba(0,0,0,.16)}
+    .btn-row,.quick-row,.stats{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.quick-row{margin-top:14px}
+    .btn,.pill-btn{position:relative;overflow:hidden;min-height:52px;padding:14px 18px;border-radius:18px;color:#fff;font-weight:850;background:linear-gradient(135deg,rgba(100,231,255,.95),rgba(157,124,255,.95));box-shadow:0 14px 32px rgba(28,36,80,.28);transition:transform .18s ease,filter .18s ease,background .18s ease;display:inline-flex;justify-content:center;align-items:center;gap:8px}
+    .btn:active,.pill-btn:active{transform:scale(.96);filter:brightness(1.08)}
+    .btn.secondary{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.20)}
+    .btn.soft{background:linear-gradient(135deg,rgba(255,159,199,.92),rgba(255,210,184,.92));color:#2d2542}
+    .btn.mint{background:linear-gradient(135deg,rgba(156,245,207,.95),rgba(100,231,255,.88));color:#18314b}
+    .btn.small{min-height:44px;padding:10px 13px;border-radius:15px;font-size:.92rem}.btn.icon{width:46px;min-width:46px;padding:0;border-radius:16px}
+    .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.42);transform:scale(0);animation:ripple .55s ease-out forwards;pointer-events:none}
+    @keyframes ripple{to{transform:scale(4);opacity:0}}
+    .pill{padding:10px 13px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.17);font-weight:750;font-size:.94rem}
+    .audio-pill{color:var(--white);background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);min-height:42px}
+    .tiny-note{margin-top:16px;opacity:.72;line-height:1.45;font-size:.92rem}
+    .topbar{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 auto 16px;padding:12px}
+    .topbar h2{margin:0;font-size:clamp(1.35rem,4vw,2rem);letter-spacing:-.04em}
+    .page-card{width:100%;padding:clamp(18px,4vw,34px);min-height:0}
+    .mode-grid{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+    .mode-card{padding:20px;min-height:240px;display:flex;flex-direction:column;gap:12px;justify-content:space-between;text-align:left;transition:transform .18s ease,background .18s ease;position:relative;overflow:hidden}
+    .mode-card::after{content:"";position:absolute;right:-48px;bottom:-58px;width:155px;height:155px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 70%);pointer-events:none}
+    .mode-card:active{transform:scale(.98)}
+    .mode-emoji{width:62px;height:62px;display:grid;place-items:center;border-radius:22px;font-size:2rem;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16)}
+    .mode-card h3{margin:0;font-size:1.24rem}.mode-card p{margin:0;opacity:.82;line-height:1.45;font-size:.96rem}
+    .info-text{max-width:850px;margin:auto;text-align:left;line-height:1.72;font-size:1.02rem}.info-text h3{margin:24px 0 8px;color:#fff}
+    .game-screen{width:min(1180px,100%);gap:0}
+    .game-shell{width:100%;height:calc(100svh - 36px - var(--safe-top) - var(--safe-bottom));max-height:860px;display:flex;flex-direction:column;overflow:hidden}
+    .game-header{flex:0 0 auto;display:flex;align-items:center;gap:9px;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.08)}
+    .game-title{min-width:0;font-weight:950;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(.95rem,2.5vw,1.1rem)}
+    .game-metrics{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;flex:1}.metric{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);font-weight:850;font-size:.86rem;white-space:nowrap}
+    .game-actions{display:flex;gap:7px;flex:0 0 auto}
+    .play-area{position:relative;flex:1;overflow:hidden;min-height:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.14),transparent 24%),radial-gradient(circle at 70% 80%,rgba(156,245,207,.15),transparent 30%),rgba(255,255,255,.035)}
+    .play-area::after{content:"";position:absolute;inset:14px;border-radius:24px;border:1px solid rgba(255,255,255,.055);pointer-events:none}
+    .mode-message{position:absolute;left:50%;top:18px;transform:translateX(-50%);max-width:min(92%,680px);padding:12px 15px;border-radius:18px;background:rgba(16,24,47,.38);border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(12px);text-align:center;line-height:1.4;font-weight:800;z-index:5;pointer-events:none}
+    .bubble{position:absolute;min-width:70px;min-height:70px;padding:12px;border-radius:50%;display:grid;place-items:center;text-align:center;color:#fff;font-weight:950;line-height:1.05;background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.95),rgba(255,255,255,.18) 22%,rgba(255,159,199,.72) 58%,rgba(157,124,255,.76));box-shadow:0 16px 35px rgba(0,0,0,.22),inset 0 0 18px rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);animation:bubblePopIn .22s ease-out both,bubbleFloat 2.7s ease-in-out .22s infinite alternate;cursor:pointer;touch-action:manipulation;will-change:transform}
+    .bubble small{display:block;font-size:.62em;margin-top:2px;opacity:.9}
+    @keyframes bubbleFloat{from{transform:translate3d(-4px,4px,0) scale(1)}to{transform:translate3d(7px,-7px,0) scale(1.03)}}
+    @keyframes bubblePopIn{from{opacity:0;transform:scale(.72) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes bubbleOut{to{opacity:0;transform:scale(.62)}}.bubble-out{animation:bubbleOut .18s ease-in both!important}
+    .particle{position:absolute;width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.9);pointer-events:none;animation:particle .72s ease-out forwards;z-index:20}
+    @keyframes particle{to{transform:translate(var(--x),var(--y)) scale(.25);opacity:0}}
+    .pop-text{position:absolute;padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.22);font-weight:950;font-size:.9rem;pointer-events:none;z-index:30;animation:floatText 1s ease-out forwards;white-space:nowrap;max-width:92%;text-align:center}
+    @keyframes floatText{to{transform:translateY(-34px);opacity:0}}
+    .breath-area{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;background:radial-gradient(circle at 50% 45%,rgba(156,245,207,.20),transparent 34%),linear-gradient(135deg,rgba(36,55,95,.45),rgba(39,78,86,.24))}
+    .breath-circle{width:clamp(165px,43vmin,320px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,rgba(255,255,255,.28),rgba(100,231,255,.20),rgba(156,245,207,.08));border:1px solid rgba(255,255,255,.28);box-shadow:0 0 60px rgba(100,231,255,.25),inset 0 0 35px rgba(255,255,255,.12);transition:transform 1s ease;cursor:pointer}
+    .breath-circle.inhale{transform:scale(1.14)}.breath-circle.hold{transform:scale(1.14)}.breath-circle.exhale{transform:scale(.82)}
+    .breath-inner{font-size:clamp(1.05rem,4vw,1.7rem);font-weight:950;text-align:center;padding:20px}
+    .breath-caption{max-width:650px;text-align:center;line-height:1.55;opacity:.86;padding:0 18px;margin:0}
+    .round-pill{font-size:1rem;font-weight:850;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16)}
+    .rain-stage,.stretch-stage{position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;text-align:center;padding:18px;overflow:hidden}
+    .rain-stage{background:radial-gradient(circle at 50% 20%,rgba(100,231,255,.18),transparent 28%),linear-gradient(180deg,rgba(10,20,44,.55),rgba(20,37,68,.30))}
+    .rain-drop{position:absolute;top:-20px;width:2px;height:20px;border-radius:99px;background:rgba(255,255,255,.45);animation:rainFall linear infinite;pointer-events:none}
+    @keyframes rainFall{to{transform:translateY(110svh);opacity:.1}}
+    .stage-title{font-size:clamp(2rem,6vw,4rem);letter-spacing:-.06em;line-height:1;margin:0;font-weight:950}.stage-desc{font-size:clamp(.98rem,3vw,1.15rem);line-height:1.55;max-width:720px;margin:0 auto;opacity:.86}
+    .rain-timer{font-size:clamp(2.4rem,9vw,5rem);font-weight:950;letter-spacing:-.07em}
+    .stretch-card{width:min(720px,100%);padding:24px;text-align:center}
+    .stretch-character{font-size:clamp(5rem,18vw,9rem);animation:stretchMove 2.5s ease-in-out infinite;filter:drop-shadow(0 18px 30px rgba(0,0,0,.25))}
+    @keyframes stretchMove{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+    .stretch-step{font-size:clamp(1.25rem,4vw,2rem);font-weight:950;line-height:1.25;margin:8px 0}.stretch-count{opacity:.75;margin:0 0 14px}
+    .pillow-area{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;height:100%}
+    .pillow{width:clamp(170px,48vmin,340px);aspect-ratio:1.18;border-radius:38% 42% 35% 45%;background:radial-gradient(circle at 35% 32%,rgba(255,255,255,.90),rgba(255,255,255,.15) 20%,transparent 22%),linear-gradient(135deg,#ffd2b8,#ff9fc7 48%,#9d7cff);display:grid;place-items:center;font-size:clamp(4.8rem,17vmin,9rem);box-shadow:0 26px 55px rgba(0,0,0,.26),inset 0 -18px 42px rgba(0,0,0,.12);border:1px solid rgba(255,255,255,.26);cursor:pointer}
+    .pillow.hit{animation:pillowHit .18s ease}@keyframes pillowHit{0%{transform:scale(1) rotate(0)}35%{transform:scale(.94) rotate(-4deg)}70%{transform:scale(1.06) rotate(4deg)}100%{transform:scale(1) rotate(0)}}
+    .pillow.provoke{animation:pillowGlow .55s ease}@keyframes pillowGlow{0%,100%{filter:drop-shadow(0 0 0 rgba(255,255,255,0))}50%{filter:drop-shadow(0 0 28px rgba(255,159,199,.75))}}
+    .big-counter{font-size:clamp(1.15rem,4vw,2rem);font-weight:950;letter-spacing:-.04em}
+    .provocation{position:absolute;left:50%;top:20%;transform:translateX(-50%);width:min(90%,650px);padding:16px 20px;border-radius:26px;background:linear-gradient(135deg,rgba(255,159,199,.25),rgba(100,231,255,.18));border:1px solid rgba(255,255,255,.24);font-weight:950;font-size:clamp(1.1rem,4.5vw,2.1rem);z-index:40;animation:provokePop 1.25s ease forwards;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+    @keyframes provokePop{0%{opacity:0;transform:translate(-50%,20px) scale(.9)}20%,75%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-22px) scale(.95)}}
+    .orb{position:absolute;width:clamp(76px,15vmin,116px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0 10%,var(--cyan) 25%,var(--purple) 68%,rgba(255,159,199,.7));box-shadow:0 0 40px rgba(100,231,255,.75),0 0 90px rgba(157,124,255,.35);border:1px solid rgba(255,255,255,.35);cursor:pointer;animation:orbPulse 1.6s ease-in-out infinite}
+    @keyframes orbPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+    .result-card{width:min(760px,100%);padding:clamp(22px,5vw,40px);text-align:center;position:relative;overflow:hidden}
+    .result-card::before{content:"";position:absolute;inset:-90px auto auto 50%;transform:translateX(-50%);width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(156,245,207,.18),transparent 70%);pointer-events:none}
+    .result-score{font-size:clamp(2.6rem,10vw,5rem);line-height:1;font-weight:950;letter-spacing:-.07em;margin:4px 0 8px}.quote{margin:18px auto 0;max-width:620px;padding:15px 18px;border-radius:22px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16);line-height:1.55}.mini-buddy{width:104px;height:104px;margin:0 auto 12px;transform:scale(.7);transform-origin:center}
+    .modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(6,10,24,.55);backdrop-filter:blur(10px)}.modal.active{display:flex}.modal-box{width:min(420px,100%);padding:22px;text-align:center;animation:fadeUp .2s ease both}.modal-box h3{margin:0 0 8px;font-size:1.6rem}.modal-actions{display:grid;gap:10px;margin-top:18px}
+    .hidden{display:none!important}
+    @media(max-width:900px){.hero{grid-template-columns:1fr}.hero-card{text-align:center}.hero-top{justify-content:center}.btn-row,.quick-row,.stats{justify-content:center}.buddy-wrap{min-height:300px}.mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:580px){.app{padding:calc(10px + var(--safe-top)) 10px calc(10px + var(--safe-bottom))}.screen{min-height:calc(100svh - 20px - var(--safe-top) - var(--safe-bottom))}.hero{padding:0;gap:12px}.hero-card,.page-card{padding:18px;border-radius:24px}.hero-top{display:grid;grid-template-columns:1fr;justify-items:start;gap:10px}.lang-switch{width:100%;justify-content:space-between;padding:6px}.lang-chip{flex:1;justify-content:center;padding:10px 8px;font-size:.84rem}.btn-row,.quick-row,.stats{display:grid;grid-template-columns:1fr;width:100%}.btn,.pill-btn{width:100%;min-height:54px}.stats{gap:8px}.buddy-wrap{min-height:255px;padding:16px}.speech{bottom:16px}.mode-grid{grid-template-columns:1fr}.topbar{padding:10px;margin-bottom:10px}.topbar .btn{width:auto}.game-shell{height:calc(100svh - 20px - var(--safe-top) - var(--safe-bottom));border-radius:22px}.game-header{align-items:stretch;flex-wrap:wrap;padding:8px}.game-title{flex:1 1 100%;text-align:center}.game-metrics{order:2;flex:1 1 auto;justify-content:flex-start}.game-actions{order:3;margin-left:auto}.metric{padding:7px 8px;font-size:.78rem}.btn.icon{width:42px;min-width:42px;min-height:42px}.mode-message{top:10px;font-size:.83rem}.bubble{min-width:70px;min-height:70px}.stage-title{font-size:2.2rem}.rain-timer{font-size:3rem}.stretch-card{padding:18px}}
+    @media(orientation:landscape) and (max-height:520px){.app{padding:8px}.screen{min-height:calc(100svh - 16px)}.hero{grid-template-columns:1.1fr .9fr;gap:10px}.hero-card{padding:16px}h1{font-size:clamp(2rem,8vw,3.8rem)}.subtitle,.tiny-note{font-size:.9rem;margin-bottom:10px}.buddy-wrap{min-height:calc(100svh - 24px);padding:10px}.buddy{width:min(34vmin,145px)}.speech{bottom:12px;font-size:.82rem}.game-shell{height:calc(100svh - 16px)}.breath-circle{width:min(38vmin,190px)}.pillow{width:min(40vmin,220px)}.stage-title{font-size:2rem}.rain-timer{font-size:2.5rem}.stretch-character{font-size:4rem}.stretch-card{padding:14px}}
+
+    .creator-footer{
+      position:fixed;
+      left:50%;
+      bottom:calc(12px + var(--safe-bottom));
+      transform:translateX(-50%);
+      z-index:60;
+      width:min(92vw,620px);
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 14px 34px rgba(0,0,0,.18);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      text-align:center;
+      font-size:clamp(.78rem,2.5vw,.95rem);
+      line-height:1.35;
+      color:rgba(255,255,255,.82);
+      pointer-events:none;
+    }
+    .creator-footer strong{
+      color:#fff;
+      font-weight:850;
+    }
+    .creator-footer .handle{
+      color:rgba(156,245,207,.95);
+      font-weight:800;
+    }
+    .creator-footer.is-hidden{
+      display:none;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="bg-orb one"></div><div class="bg-orb two"></div><div class="bg-orb three"></div>
+
+    <section id="loading" class="screen center stack active">
+      <div class="loading-logo glass">
+        <p class="eyebrow" data-i18n="loadingBadge">🌙 Mood Buddy Lek hadir</p>
+        <h1 class="loading-title" data-i18n="appTitle">Sabar Dulu Lek</h1>
+        <p class="loading-sub" data-i18n="loadingSub">Tunggu bentar lek, lagi nyiapin tempat buat nenangin kepala…</p>
+        <div class="loader"><span></span></div>
+      </div>
+    </section>
+
+    <section id="home" class="screen center">
+      <div class="hero">
+        <div class="hero-card glass">
+          <div class="hero-top">
+            <span class="eyebrow" data-i18n="homeBadge">🫧 Game santai anti-meledak duluan</span>
+            <div class="lang-switch" aria-label="Language switcher">
+              <button class="lang-chip" type="button" data-lang="id">🇮🇩 ID</button>
+              <button class="lang-chip" type="button" data-lang="en">🇬🇧 EN</button>
+              <button class="lang-chip" type="button" data-lang="zh">🇨🇳 中文</button>
+            </div>
+          </div>
+          <h1 data-i18n="appTitle">Sabar Dulu Lek</h1>
+          <p class="subtitle" data-i18n="homeSub">Game kecil buat nemenin kamu saat lagi kesel, suntuk, pusing, atau overthinking.</p>
+          <div class="stats">
+            <span class="pill"><span data-i18n="highScore">🏆 High Score</span>: <b id="homeHighScore">0</b></span>
+            <span class="pill"><span data-i18n="totalPlay">🎮 Total Main</span>: <b id="homeTotalGames">0</b></span>
+            <span class="pill"><span data-i18n="soundLabel">🔊 Sound</span>: <b id="homeMuteStatus">Aktif</b></span>
+            <button class="pill-btn audio-pill" id="audioToggleHome" type="button">🔊 Audio: Aktif</button>
+          </div>
+          <div class="btn-row">
+            <button class="btn" data-action="start-default" data-i18n="start">Mulai Main</button>
+            <button class="btn secondary" data-screen="modes" data-i18n="chooseMode">Pilih Mode</button>
+            <button class="btn secondary" data-screen="how" data-i18n="howToPlay">Cara Main</button>
+            <button class="btn secondary" data-screen="about" data-i18n="about">Tentang Game</button>
+          </div>
+          <div class="quick-row">
+            <button class="btn soft" data-start="pillow" data-i18n="quickAngry">Aku Lagi Kesal</button>
+            <button class="btn soft" data-start="emotion" data-i18n="quickOverthinking">Aku Overthinking</button>
+            <button class="btn mint" data-start="breath" data-i18n="quickCalm">Aku Mau Tenang</button>
+          </div>
+          <p class="tiny-note" data-i18n="disclaimerShort">Game ini bukan pengganti bantuan profesional, tapi bisa bantu kamu tenang sebentar.</p>
+        </div>
+        <div class="buddy-wrap glass">
+          <div class="buddy-aura"></div><div class="buddy calm" id="homeBuddy"><span class="mouth"></span></div>
+          <div class="speech" id="buddySpeech">Aman lek, pelan-pelan aja.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="modes" class="screen stack">
+      <div class="topbar glass">
+        <h2 data-i18n="chooseMode">Pilih Mode</h2>
+        <button class="btn secondary small" data-screen="home" data-i18n="backHome">← Beranda</button>
+      </div>
+      <div class="page-card glass">
+        <div class="mode-grid">
+          <div class="mode-card glass"><div><div class="mode-emoji">😡</div><h3 data-i18n="modeEmotion">Tap Emosi</h3><p data-i18n="modeEmotionDesc">Tap bubble emosi sampai pecah. Cocok buat melepas kesel dan overthinking pelan-pelan.</p></div><button class="btn" data-start="emotion" data-i18n="play">Main</button></div>
+          <div class="mode-card glass"><div><div class="mode-emoji">🌬️</div><h3 data-i18n="modeBreath">Breath Tap</h3><p data-i18n="modeBreathDesc">Ikuti napas 3 putaran, lanjut hujan relax, lalu senam tenang.</p></div><button class="btn mint" data-start="breath" data-i18n="play">Main</button></div>
+          <div class="mode-card glass"><div><div class="mode-emoji">🧸</div><h3 data-i18n="modePillow">Pukul Bantal</h3><p data-i18n="modePillowDesc">Tap bantal selama 2 menit. Setiap 15 tap muncul kata-kata pedas lucu.</p></div><button class="btn soft" data-start="pillow" data-i18n="play">Main</button></div>
+          <div class="mode-card glass"><div><div class="mode-emoji">✨</div><h3 data-i18n="modeFocus">Fokus 60 Detik</h3><p data-i18n="modeFocusDesc">Kejar orb glowing dengan santai selama 60 detik biar pikiran pindah jalur dulu.</p></div><button class="btn" data-start="focus" data-i18n="play">Main</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="game" class="screen game-screen">
+      <div class="game-shell glass">
+        <header class="game-header">
+          <div class="game-title" id="gameTitle">Mode</div>
+          <div class="game-metrics">
+            <span class="metric"><span data-i18n="score">Skor</span>: <b id="scoreText">0</b></span>
+            <span class="metric" id="timerWrap"><span data-i18n="time">Waktu</span>: <b id="timerText">0</b>s</span>
+            <span class="metric hidden" id="calmWrap">Calm: <b id="calmText">0</b></span>
+          </div>
+          <div class="game-actions">
+            <button class="btn secondary icon" id="pauseBtn" title="Pause">⏸️</button>
+            <button class="btn secondary icon" id="muteBtn" title="Mute">🔊</button>
+            <button class="btn secondary icon" id="homeBtn" title="Home">🏠</button>
+          </div>
+        </header>
+        <main class="play-area" id="playArea"></main>
+      </div>
+    </section>
+
+    <section id="result" class="screen center stack">
+      <div class="result-card glass">
+        <div class="mini-buddy"><div class="buddy proud"><span class="mouth"></span></div></div>
+        <span class="eyebrow" id="resultMode">Hasil</span>
+        <h2 id="resultTitle">Mantap lek.</h2>
+        <div class="result-score" id="resultScore">0</div>
+        <p class="subtitle" id="resultMessage">Kamu sudah main dengan santai.</p>
+        <p class="pill" id="resultHighInfo">High score aman.</p>
+        <div class="quote" id="resultQuote">Tarik napas dulu, pelan-pelan.</div>
+        <div class="btn-row" style="justify-content:center;margin-top:20px">
+          <button class="btn" id="againBtn" data-i18n="playAgain">Main Lagi</button>
+          <button class="btn secondary" data-screen="modes" data-i18n="chooseMode">Pilih Mode</button>
+          <button class="btn secondary" data-screen="home" data-i18n="backHome">Kembali ke Beranda</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="screen stack">
+      <div class="topbar glass"><h2 data-i18n="howToPlay">Cara Main</h2><button class="btn secondary small" data-screen="home" data-i18n="backHome">← Beranda</button></div>
+      <div class="page-card glass info-text" id="howContent"></div>
+    </section>
+
+    <section id="about" class="screen stack">
+      <div class="topbar glass"><h2 data-i18n="about">Tentang Game</h2><button class="btn secondary small" data-screen="home" data-i18n="backHome">← Beranda</button></div>
+      <div class="page-card glass info-text" id="aboutContent"></div>
+    </section>
+
+
+    <footer class="creator-footer" id="creatorFooter">
+      Game ini dibuat oleh <strong>Aidil Farhan Rares</strong> <span class="handle">(aidilfarhanr@gmail.com)</span>
+    </footer>
+
+    <div class="modal" id="pauseModal">
+      <div class="modal-box glass">
+        <h3 data-i18n="pauseTitle">Pause dulu lek</h3>
+        <p data-i18n="pauseDesc">Ambil napas sebentar. Game-nya nunggu kok.</p>
+        <div class="modal-actions">
+          <button class="btn mint" id="resumeBtn" data-i18n="resume">Lanjutkan</button>
+          <button class="btn" id="restartBtn" data-i18n="restart">Ulangi</button>
+          <button class="btn secondary" data-screen="modes" data-i18n="chooseMode">Pilih Mode</button>
+          <button class="btn secondary" data-screen="home" data-i18n="backHome">Kembali ke Beranda</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const safeMemoryStore = {};
+      const store = {
+        getItem(key){try{return window.localStorage.getItem(key)}catch(e){return Object.prototype.hasOwnProperty.call(safeMemoryStore,key)?safeMemoryStore[key]:null}},
+        setItem(key,value){try{window.localStorage.setItem(key,value)}catch(e){safeMemoryStore[key]=String(value)}}
+      };
+
+      const $ = q => document.querySelector(q);
+      const $$ = q => Array.from(document.querySelectorAll(q));
+
+      const translations = {
+        id: {
+          appTitle:"Sabar Dulu Lek", loadingBadge:"🌙 Mood Buddy Lek hadir", loadingSub:"Tunggu bentar lek, lagi nyiapin tempat buat nenangin kepala…",
+          homeBadge:"🫧 Game santai anti-meledak duluan", homeSub:"Game kecil buat nemenin kamu saat lagi kesel, suntuk, pusing, atau overthinking.",
+          highScore:"🏆 High Score", totalPlay:"🎮 Total Main", soundLabel:"🔊 Sound", active:"Aktif", mute:"Mute",
+          start:"Mulai Main", chooseMode:"Pilih Mode", howToPlay:"Cara Main", about:"Tentang Game", backHome:"← Beranda", play:"Main", playAgain:"Main Lagi",
+          quickAngry:"Aku Lagi Kesal", quickOverthinking:"Aku Overthinking", quickCalm:"Aku Mau Tenang",
+          disclaimerShort:"Game ini bukan pengganti bantuan profesional, tapi bisa bantu kamu tenang sebentar.",
+          modeEmotion:"Tap Emosi", modeBreath:"Breath Tap", modePillow:"Pukul Bantal", modeFocus:"Fokus 60 Detik",
+          modeEmotionDesc:"Tap bubble emosi sampai pecah. Cocok buat melepas kesel dan overthinking pelan-pelan.",
+          modeBreathDesc:"Ikuti napas 3 putaran, lanjut hujan relax, lalu senam tenang.",
+          modePillowDesc:"Tap bantal selama 2 menit. Setiap 15 tap muncul kata-kata pedas lucu.",
+          modeFocusDesc:"Kejar orb glowing dengan santai selama 60 detik biar pikiran pindah jalur dulu.",
+          score:"Skor", time:"Waktu", pauseTitle:"Pause dulu lek", pauseDesc:"Ambil napas sebentar. Game-nya nunggu kok.", resume:"Lanjutkan", restart:"Ulangi",
+          emotionMsg:"Tap bubble emosi yang muncul. Lepasin pelan-pelan, lek.", pillowMsg:"Tap bantalnya 2 menit. Setiap 15 tap ada provokasi lucu, tapi HP jangan jadi korban.",
+          focusMsg:"Tap orb glowing yang muncul. Santai aja, fokus pelan-pelan.", round:"Putaran napas", inhale:"Tarik napas…", hold:"Tahan sebentar…", exhale:"Buang pelan-pelan…",
+          voiceNote:"Voice-over aktif saat audio tidak mute. Kalau lagi nggak mau suara, tekan mute aja, lek.",
+          rainTitle:"Dengerin Hujan Dulu, Lek", rainDesc:"Sekarang diam sebentar. Biar kepala kamu adem dulu.", skip:"Lewati",
+          stretchTitle:"Senam Tenang Lek", next:"Lanjut", finish:"Selesai",
+          resultOk:"Mantap lek.", resultStay:"Tetap aman, lek.", highSafe:"High score aman.", highNew:"🏆 High score keseluruhan baru, lek!", highMode:" Mode ini juga pecah rekor.",
+          emotionEnd:"Kamu sudah melepas beberapa emosi, lek. Sekarang kepala boleh istirahat sedikit.",
+          pillowEnd:"Emosinya sudah keluar banyak, lek. Sekarang tarik napas dan minum air dulu.",
+          focusEnd:"Kamu berhasil fokus selama 60 detik, lek. Sekarang pikiranmu sedikit lebih tenang.",
+          breathEnd:"Mantap lek, kamu sudah napas 3 putaran, dengerin hujan, dan gerak ringan. Sekarang kepala kamu semoga lebih adem.",
+          aw:"Aw aw aw", breathIntro:"Tenang dulu lek. Ikuti napas pelan-pelan.", breathInVoice:"Tarik napas pelan-pelan…", breathHoldVoice:"Tahan sebentar…", breathOutVoice:"Buang napas pelan-pelan…",
+          rainVoice:"Dengarkan hujan sebentar. Biarkan pikiranmu pelan-pelan adem.", breathDoneVoice:"Mantap lek, napasmu mulai lebih pelan.",
+          howHTML:`<h3>😡 Tap Emosi</h3><p>Tap bubble emosi yang muncul. Saat disentuh, bubble pecah, keluar partikel, dan ada suara lucu “aw aw aw”.</p><h3>🌬️ Breath Tap</h3><p>Ikuti 3 putaran napas: tarik 4 detik, tahan 2 detik, buang 6 detik. Setelah itu kamu masuk tahap hujan 2 menit dan Senam Tenang Lek.</p><h3>🧸 Pukul Bantal</h3><p>Durasi 2 menit. Setiap kelipatan 15 tap, muncul kata-kata provokasi lucu biar kamu makin semangat melampiaskan emosi dengan aman.</p><h3>✨ Fokus 60 Detik</h3><p>Tap orb glowing yang pindah posisi setiap disentuh. Mode ini buat ngalihin pikiran dari overthinking selama satu menit.</p>`,
+          aboutHTML:`<p><b>Sabar Dulu Lek</b> dibuat untuk nemenin kamu saat sedang suntuk, pusing, kesel, capek emosional, atau overthinking.</p><p>Di sini kamu ditemani <b>Mood Buddy Lek</b>, karakter kecil yang tugasnya bukan menghakimi, tapi bilang: “pelan-pelan dulu, lek.”</p><p>Audio dan voice-over dibuat ringan dari fitur browser, tanpa asset eksternal.</p><h3>Disclaimer</h3><p>Kalau kamu merasa sangat tertekan, pusing berat, sesak, atau merasa tidak aman, segera hubungi orang terdekat atau bantuan profesional.</p>`
+        },
+        en: {
+          appTitle:"Take It Easy, Lek", loadingBadge:"🌙 Mood Buddy Lek is here", loadingSub:"Wait a second, preparing a cozy space for your mind…",
+          homeBadge:"🫧 A calm game before emotions explode", homeSub:"A small game to keep you company when you feel angry, tired, dizzy, or overthinking.",
+          highScore:"🏆 High Score", totalPlay:"🎮 Total Plays", soundLabel:"🔊 Sound", active:"On", mute:"Muted",
+          start:"Start Game", chooseMode:"Choose Mode", howToPlay:"How to Play", about:"About Game", backHome:"← Home", play:"Play", playAgain:"Play Again",
+          quickAngry:"I Feel Angry", quickOverthinking:"I Am Overthinking", quickCalm:"I Want Calm",
+          disclaimerShort:"This game is not a replacement for professional help, but it may help you calm down for a moment.",
+          modeEmotion:"Tap Emotions", modeBreath:"Breath Tap", modePillow:"Pillow Tap", modeFocus:"60-Second Focus",
+          modeEmotionDesc:"Tap emotion bubbles until they pop. Good for slowly releasing frustration and overthinking.",
+          modeBreathDesc:"Follow 3 breathing rounds, continue with relaxing rain, then a calm stretch.",
+          modePillowDesc:"Tap the pillow for 2 minutes. Every 15 taps, a playful spicy line appears.",
+          modeFocusDesc:"Tap the glowing orb for 60 seconds to gently shift your focus.",
+          score:"Score", time:"Time", pauseTitle:"Paused", pauseDesc:"Take a breath. The game will wait.", resume:"Resume", restart:"Restart",
+          emotionMsg:"Tap the emotion bubbles. Let it go slowly.", pillowMsg:"Tap the pillow for 2 minutes. Every 15 taps, a playful challenge appears. Don’t sacrifice your phone.",
+          focusMsg:"Tap the glowing orb. Easy, just focus slowly.", round:"Breathing round", inhale:"Breathe in…", hold:"Hold for a moment…", exhale:"Breathe out slowly…",
+          voiceNote:"Voice-over is active when audio is not muted. If you want quiet, press mute.",
+          rainTitle:"Listen to the Rain First", rainDesc:"Stay still for a moment. Let your mind cool down first.", skip:"Skip",
+          stretchTitle:"Calm Stretch", next:"Next", finish:"Finish",
+          resultOk:"Nice work.", resultStay:"Stay safe.", highSafe:"High score is safe.", highNew:"🏆 New overall high score!", highMode:" You also broke this mode record.",
+          emotionEnd:"You released some emotions. Let your mind rest a little now.",
+          pillowEnd:"A lot of emotion is out now. Take a breath and drink some water first.",
+          focusEnd:"You focused for 60 seconds. Your mind may feel a little calmer now.",
+          breathEnd:"Nice. You completed 3 breathing rounds, listened to the rain, and did a light stretch. Hopefully your mind feels calmer now.",
+          aw:"Ow ow ow", breathIntro:"Take it easy. Follow your breath slowly.", breathInVoice:"Breathe in slowly…", breathHoldVoice:"Hold for a moment…", breathOutVoice:"Breathe out slowly…",
+          rainVoice:"Listen to the rain for a moment. Let your mind cool down slowly.", breathDoneVoice:"Nice. Your breathing is starting to slow down.",
+          howHTML:`<h3>😡 Tap Emotions</h3><p>Tap the emotion bubbles. When touched, they pop with particles and a funny “ow ow ow” sound.</p><h3>🌬️ Breath Tap</h3><p>Follow 3 breathing rounds: breathe in for 4 seconds, hold for 2 seconds, breathe out for 6 seconds. Then continue to 2 minutes of rain and Calm Stretch.</p><h3>🧸 Pillow Tap</h3><p>Duration is 2 minutes. Every 15 taps, a playful challenge line appears to help you release emotion safely.</p><h3>✨ 60-Second Focus</h3><p>Tap the glowing orb as it moves. This mode helps shift your mind away from overthinking for one minute.</p>`,
+          aboutHTML:`<p><b>Take It Easy, Lek</b> is made to keep you company when you feel emotionally tired, angry, dizzy, or stuck in overthinking.</p><p>You are accompanied by <b>Mood Buddy Lek</b>, a small friend that does not judge you and simply says: “slow down for a moment.”</p><p>Audio and voice-over are generated lightly from browser features, without external assets.</p><h3>Disclaimer</h3><p>If you feel extremely overwhelmed, very dizzy, short of breath, or unsafe, contact someone close to you or professional help immediately.</p>`
+        },
+        zh: {
+          appTitle:"先冷静一下 Lek", loadingBadge:"🌙 Mood Buddy Lek 来了", loadingSub:"等一下，正在为你的大脑准备一个安静的小空间…",
+          homeBadge:"🫧 情绪爆炸前先放松一下", homeSub:"一个小小游戏，陪你度过生气、疲惫、头晕或胡思乱想的时候。",
+          highScore:"🏆 最高分", totalPlay:"🎮 游玩次数", soundLabel:"🔊 声音", active:"开启", mute:"静音",
+          start:"开始游戏", chooseMode:"选择模式", howToPlay:"玩法说明", about:"关于游戏", backHome:"← 首页", play:"开始", playAgain:"再玩一次",
+          quickAngry:"我有点生气", quickOverthinking:"我在胡思乱想", quickCalm:"我想冷静",
+          disclaimerShort:"这个游戏不能替代专业帮助，但可以陪你先冷静一会儿。",
+          modeEmotion:"点击情绪", modeBreath:"呼吸点击", modePillow:"拍枕头", modeFocus:"60秒专注",
+          modeEmotionDesc:"点击情绪泡泡，让它慢慢消失，帮助释放烦躁和胡思乱想。",
+          modeBreathDesc:"完成三轮呼吸，接着听雨放松，然后做轻松伸展。",
+          modePillowDesc:"拍枕头2分钟。每15次点击会出现一句有趣的鼓励话。",
+          modeFocusDesc:"点击发光小球60秒，让注意力慢慢转移。",
+          score:"分数", time:"时间", pauseTitle:"暂停一下", pauseDesc:"先深呼吸一下，游戏会等你。", resume:"继续", restart:"重新开始",
+          emotionMsg:"点击出现的情绪泡泡，慢慢放下。", pillowMsg:"拍枕头2分钟。每15次点击会出现有趣挑战，但别伤到手机。",
+          focusMsg:"点击发光小球。慢慢来，专注一点点。", round:"呼吸轮次", inhale:"吸气…", hold:"屏住一会儿…", exhale:"慢慢呼气…",
+          voiceNote:"未静音时会有语音提示。如果你想安静，可以点击静音。",
+          rainTitle:"先听听雨声", rainDesc:"先安静一会儿，让大脑慢慢放松。", skip:"跳过",
+          stretchTitle:"放松伸展", next:"下一步", finish:"完成",
+          resultOk:"很好。", resultStay:"先保持安全。", highSafe:"最高分已保存。", highNew:"🏆 新的总最高分！", highMode:" 这个模式也刷新纪录了。",
+          emotionEnd:"你已经释放了一些情绪，现在让大脑休息一下。",
+          pillowEnd:"情绪已经释放很多了。现在先深呼吸，喝点水。",
+          focusEnd:"你完成了60秒专注。希望你的思绪更平静一点。",
+          breathEnd:"很好，你完成了三轮呼吸，听了雨声，也做了轻松伸展。希望你的心情现在更平静。",
+          aw:"哎呀 哎呀 哎呀", breathIntro:"先放松。慢慢跟着呼吸。", breathInVoice:"慢慢吸气…", breathHoldVoice:"屏住呼吸一会儿…", breathOutVoice:"慢慢呼气…",
+          rainVoice:"先听一会儿雨声，让思绪慢慢安静。", breathDoneVoice:"很好，你的呼吸开始慢下来了。",
+          howHTML:`<h3>😡 点击情绪</h3><p>点击出现的情绪泡泡。泡泡会破裂、出现粒子，并发出有趣的声音。</p><h3>🌬️ 呼吸点击</h3><p>完成三轮呼吸：吸气4秒，屏住2秒，呼气6秒。之后进入2分钟雨声放松和放松伸展。</p><h3>🧸 拍枕头</h3><p>时长为2分钟。每15次点击会出现一句有趣的挑战话，帮助你安全释放情绪。</p><h3>✨ 60秒专注</h3><p>点击移动的发光小球。这个模式帮助你在一分钟内把注意力从胡思乱想中转移出来。</p>`,
+          aboutHTML:`<p><b>先冷静一下 Lek</b> 是一个陪伴你在疲惫、生气、头晕或胡思乱想时放松的小小游戏。</p><p>你会有一个小伙伴 <b>Mood Buddy Lek</b>，它不会批评你，只会提醒你：先慢慢来。</p><p>声音和语音由浏览器轻量生成，不使用外部资源。</p><h3>免责声明</h3><p>如果你感到非常压抑、严重头晕、呼吸困难，或觉得自己不安全，请立刻联系身边的人或专业帮助。</p>`
+        }
+      };
+
+      const arrays = {
+        quotes:{
+          id:["Kamu nggak harus menyelesaikan semuanya malam ini.","Tarik napas dulu, pelan-pelan.","Perasaan kamu valid, lek.","Sabar dulu lek, bukan berarti kalah.","Kamu boleh capek.","Yang penting sekarang kamu aman dulu.","Pusingmu butuh istirahat, bukan overthinking.","Kendalikan napasmu, bukan semuanya."],
+          en:["You don’t have to solve everything tonight.","Take a breath first, slowly.","Your feelings are valid.","Taking it slow doesn’t mean losing.","You are allowed to be tired.","The important thing is that you are safe right now.","Your tired mind needs rest, not overthinking.","Control your breath, not everything."],
+          zh:["你不需要今晚解决所有事情。","先慢慢深呼吸。","你的感受是被允许的。","慢下来不代表失败。","你可以感到疲惫。","现在最重要的是你是安全的。","疲惫的大脑需要休息，而不是胡思乱想。","先控制呼吸，不必控制所有事。"]
+        },
+        buddy:{
+          id:["Sabar dulu lek.","Tarik napas dulu.","Jangan chat panjang pas emosi.","Pusingmu butuh istirahat, bukan overthinking.","Aman lek, pelan-pelan aja.","Minum air dulu, biar kepala nggak demo."],
+          en:["Take it easy first.","Take a breath first.","Don’t send long texts while emotional.","Your tired mind needs rest, not overthinking.","You are safe. Slow down.","Drink some water first."],
+          zh:["先冷静一下。","先深呼吸。","情绪上来时先别发长消息。","疲惫的大脑需要休息，不需要胡思乱想。","你现在是安全的，慢慢来。","先喝点水。"]
+        },
+        positive:{
+          id:["Lepasin pelan-pelan, lek.","Kamu aman.","Tarik napas dulu.","Nggak harus selesai malam ini.","Kamu kuat, tapi boleh capek.","Kepala adem dulu.","Pikiran penuh boleh istirahat."],
+          en:["Let it go slowly.","You are safe.","Take a breath first.","It doesn’t have to be finished tonight.","You are strong, but you can be tired.","Let your mind cool down first.","A full mind is allowed to rest."],
+          zh:["慢慢放下。","你现在是安全的。","先深呼吸。","不一定要今晚完成。","你很坚强，但也可以累。","先让大脑冷静下来。","思绪太满也可以休息。"]
+        },
+        pillow:{
+          id:["Plak!","Duar!","Sabar lek!","Jangan chat dulu!","Bantalnya aman kok.","Overthinking kena hit!","Combo sabar +1","Air putih dulu lek."],
+          en:["Boop!","Thump!","Easy, lek!","Don’t text yet!","The pillow is okay.","Overthinking got hit!","Patience combo +1","Water first."],
+          zh:["砰！","咚！","先冷静！","先别发消息！","枕头没事。","胡思乱想被击中了！","耐心连击 +1","先喝水。"]
+        },
+        provoke:{
+          id:["Ayo lek, masa segitu doang?","Semangat, jangan kalah sama bantal!","Mode sabar belum maksimal!","Overthinking masih nantang tuh!","Ayo lagi, tapi HP jangan jadi korban!","Bantalnya masih songong, lek!","Jempolmu masih kuat kan?","Santai, tapi gas dikit!","Kamu bukan lemah, cuma lagi panas!","Ayo, keluarkan emosi dengan aman!","Pusingnya jangan dikasih panggung!","Bantalnya bilang: cuma segitu?","Lek, ini baru pemanasan!","Overthinking kena combo!","Jangan chat dulu, tap aja!","Kepala panas? Bantal siap!","Gas tipis-tipis, jangan banting HP!","Kamu kuat, tapi boleh kesel!","Sabar boleh, tap juga boleh!","Mantap, emosi keluar jalur aman!"],
+          en:["Come on, lek, is that all?","Keep going, don’t lose to a pillow!","Your patience mode is not maxed yet!","Overthinking is still challenging you!","Again, but don’t sacrifice your phone!","The pillow is still acting tough!","Your thumb is still strong, right?","Stay calm, but add a little power!","You’re not weak, you’re just heated!","Release it safely!","Don’t give your headache the spotlight!","The pillow says: is that all?","This is just the warm-up!","Overthinking got combo-hit!","Don’t text yet, just tap!","Hot head? Pillow is ready!","Go lightly, don’t throw the phone!","You’re strong, but it’s okay to be upset!","You can be patient and still tap!","Nice, emotion released safely!"],
+          zh:["加油 Lek，就这样吗？","继续，别输给枕头！","你的耐心模式还没满！","胡思乱想还在挑战你！","再来，但别伤到手机！","枕头还很嚣张！","你的手指还很有力吧？","保持冷静，但稍微加点力！","你不是弱，只是有点上头！","安全地释放情绪！","别让头疼抢戏！","枕头说：就这？","这只是热身！","胡思乱想被连击了！","先别发消息，继续拍！","脑袋热？枕头准备好了！","轻轻来，别摔手机！","你很强，但也可以生气！","可以冷静，也可以拍拍！","很好，情绪安全释放！"]
+        },
+        stretch:{
+          id:["Angkat tangan pelan-pelan","Turunkan bahu","Putar leher pelan","Tarik napas sambil buka tangan","Buang napas sambil turunkan tangan","Goyang tangan ringan","Duduk tegak sebentar","Senyum dikit, lek"],
+          en:["Slowly raise your hands","Relax your shoulders","Gently roll your neck","Breathe in while opening your arms","Breathe out while lowering your hands","Shake your hands lightly","Sit up straight for a moment","Smile a little"],
+          zh:["慢慢举起双手","放松肩膀","轻轻转动脖子","吸气时张开双臂","呼气时放下双手","轻轻甩动双手","坐直一会儿","轻轻微笑一下"]
+        }
+      };
+
+      const screens = {loading:$("#loading"),home:$("#home"),modes:$("#modes"),game:$("#game"),result:$("#result"),how:$("#how"),about:$("#about")};
+      const playArea=$("#playArea"),scoreText=$("#scoreText"),timerText=$("#timerText"),timerWrap=$("#timerWrap"),calmWrap=$("#calmWrap"),calmText=$("#calmText"),gameTitle=$("#gameTitle"),muteBtn=$("#muteBtn"),pauseModal=$("#pauseModal");
+
+      const modes = {
+        emotion:{key:"modeEmotion", duration:45, highKey:"sdl_high_emotion"},
+        breath:{key:"modeBreath", duration:0, highKey:"sdl_high_breath"},
+        pillow:{key:"modePillow", duration:120, highKey:"sdl_high_pillow"},
+        focus:{key:"modeFocus", duration:60, highKey:"sdl_high_focus"}
+      };
+      const bubbles=[["😡","Kesal","Angry","生气"],["😤","Capek","Tired","疲惫"],["😵","Pusing","Dizzy","头晕"],["😔","Sedih","Sad","难过"],["💭","Overthinking","Overthinking","胡思乱想"],["🥴","Bingung","Confused","困惑"]];
+
+      let state={
+        lang: store.getItem("sdl_language") || "id",
+        currentMode:null, stage:null, score:0, calm:0, timeLeft:0, timer:null, spawner:null, breathTimer:null, rainTimer:null, stretchTimer:null,
+        paused:false, muted:store.getItem("sdl_muted")==="1", lastMode:"emotion", audioCtx:null, audioUnlocked:false,
+        ambienceOsc:null, ambienceGain:null, rainSrc:null, rainGain:null, rainFilter:null, voices:[], lastPillowTap:0, lastAw:0, breathPhase:"inhale", breathRound:1, stretchIndex:0,
+        totalGames:parseInt(store.getItem("sdl_total_games")||"0",10)
+      };
+
+      function t(key){return (translations[state.lang] && translations[state.lang][key]) || translations.id[key] || key}
+      function arr(name){return arrays[name][state.lang] || arrays[name].id}
+      function pick(a){return a[Math.floor(Math.random()*a.length)]}
+      function rand(min,max){return Math.random()*(max-min)+min}
+      function clamp(n,min,max){return Math.max(min,Math.min(max,n))}
+      function voiceLang(){return state.lang==="id"?"id-ID":state.lang==="zh"?"zh-CN":"en-US"}
+
+      function setLanguage(lang){
+        if(!translations[lang]) lang="id";
+        state.lang=lang; store.setItem("sdl_language",lang); document.documentElement.lang=lang==="zh"?"zh-CN":lang;
+        updateLanguageUI();
+      }
+      function updateLanguageUI(){
+        $$("[data-i18n]").forEach(el=>{el.innerHTML=t(el.dataset.i18n)});
+        $("#howContent").innerHTML=t("howHTML");
+        $("#aboutContent").innerHTML=t("aboutHTML");
+        $$(".lang-chip").forEach(btn=>btn.classList.toggle("active",btn.dataset.lang===state.lang));
+        updateHome();
+        if(state.currentMode) gameTitle.textContent=t(modes[state.currentMode].key);
+      }
+      function updateHome(){
+        $("#homeHighScore").textContent=store.getItem("sdl_high_all")||"0";
+        $("#homeTotalGames").textContent=store.getItem("sdl_total_games")||"0";
+        $("#homeMuteStatus").textContent=state.muted?t("mute"):t("active");
+        $("#audioToggleHome").textContent=state.muted?`🔇 Audio: ${t("mute")}`:`🔊 Audio: ${t("active")}`;
+        muteBtn.textContent=state.muted?"🔇":"🔊";
+        $("#buddySpeech").textContent=pick(arr("buddy"));
+      }
+
+      function initAudio(){if(state.audioCtx)return state.audioCtx;const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return null;state.audioCtx=new Ctx();return state.audioCtx}
+      function unlockAudio(){const ctx=initAudio();if(ctx&&ctx.state==="suspended")ctx.resume().catch(()=>{});state.audioUnlocked=true}
+      function ctx(){if(state.muted)return null;const c=initAudio();if(c&&c.state==="suspended")c.resume().catch(()=>{});return c}
+      function tone({freq=440,endFreq=null,type="sine",duration=.12,gain=.04,delay=0}={}){const c=ctx();if(!c)return;const now=c.currentTime+delay,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,now);if(endFreq)o.frequency.exponentialRampToValueAtTime(Math.max(1,endFreq),now+duration);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(gain,now+.012);g.gain.exponentialRampToValueAtTime(.0001,now+duration);o.connect(g);g.connect(c.destination);o.start(now);o.stop(now+duration+.03)}
+      function noise({duration=.06,gain=.018,delay=0}={}){const c=ctx();if(!c)return;const n=Math.floor(c.sampleRate*duration),b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);const s=c.createBufferSource(),g=c.createGain(),now=c.currentTime+delay;g.gain.setValueAtTime(gain,now);g.gain.exponentialRampToValueAtTime(.0001,now+duration);s.buffer=b;s.connect(g);g.connect(c.destination);s.start(now);s.stop(now+duration)}
+      function playUISound(){tone({freq:rand(360,520),endFreq:rand(470,610),duration:.09,gain:.033})}
+      function playPopSound(){const b=pick([480,560,640,720]);tone({freq:b,endFreq:b*rand(.55,.78),duration:.13,gain:.043});tone({freq:b*1.35,endFreq:b*.9,type:"triangle",duration:.08,gain:.017,delay:.015})}
+      function playAwSound(){if(state.muted)return;const now=performance.now();if(now-state.lastAw<520)return;state.lastAw=now;if("speechSynthesis" in window){speakText(t("aw"),{rate:1.05,pitch:1.15,volume:.55,cancel:false});}else{tone({freq:420,endFreq:390,duration:.08,gain:.035});tone({freq:380,endFreq:350,duration:.08,gain:.035,delay:.09});tone({freq:340,endFreq:310,duration:.09,gain:.035,delay:.18})}}
+      function playPillowSound(){const now=performance.now(),combo=now-state.lastPillowTap<260?1.18:1;state.lastPillowTap=now;const b=pick([130,155,180,205])*combo;tone({freq:b,endFreq:b*.65,type:"triangle",duration:.14,gain:.05});noise({duration:.055,gain:.017,delay:.012})}
+      function playOrbSound(){tone({freq:620,endFreq:880,duration:.13,gain:.04});tone({freq:940,endFreq:1180,duration:.11,gain:.028,delay:.075})}
+      function playSuccessSound(high=false){if(high){tone({freq:520,endFreq:620,duration:.12,gain:.04});tone({freq:700,endFreq:820,duration:.12,gain:.04,delay:.10});tone({freq:920,endFreq:1120,duration:.16,gain:.045,delay:.21})}else{tone({freq:520,endFreq:760,duration:.16,gain:.04});tone({freq:760,endFreq:640,duration:.18,gain:.03,delay:.11})}}
+      function playProvokeSound(){tone({freq:300,endFreq:460,type:"triangle",duration:.12,gain:.045});tone({freq:520,endFreq:760,duration:.14,gain:.04,delay:.09})}
+
+      function startBreathAmbience(){if(state.muted||state.currentMode!=="breath"||state.stage!=="breath")return;const c=ctx();if(!c||state.ambienceOsc)return;const o=c.createOscillator(),g=c.createGain(),now=c.currentTime;o.type="sine";o.frequency.setValueAtTime(136,now);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.012,now+.55);o.connect(g);g.connect(c.destination);o.start(now);state.ambienceOsc=o;state.ambienceGain=g}
+      function stopBreathAmbience(){if(!state.ambienceOsc||!state.audioCtx)return;const c=state.audioCtx,now=c.currentTime;try{state.ambienceGain.gain.cancelScheduledValues(now);state.ambienceGain.gain.setValueAtTime(Math.max(state.ambienceGain.gain.value,.0001),now);state.ambienceGain.gain.exponentialRampToValueAtTime(.0001,now+.25);state.ambienceOsc.stop(now+.28)}catch(e){}state.ambienceOsc=null;state.ambienceGain=null}
+      function startRainSound(){if(state.muted)return;const c=ctx();if(!c||state.rainSrc)return;const bufferSize=c.sampleRate*2,b=c.createBuffer(1,bufferSize,c.sampleRate),data=b.getChannelData(0);for(let i=0;i<bufferSize;i++)data[i]=Math.random()*2-1;const src=c.createBufferSource(),filter=c.createBiquadFilter(),gain=c.createGain(),now=c.currentTime;src.buffer=b;src.loop=true;filter.type="lowpass";filter.frequency.setValueAtTime(1200,now);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.055,now+1);src.connect(filter);filter.connect(gain);gain.connect(c.destination);src.start(now);state.rainSrc=src;state.rainFilter=filter;state.rainGain=gain}
+      function stopRainSound(){if(!state.rainSrc||!state.audioCtx)return;const c=state.audioCtx,now=c.currentTime;try{state.rainGain.gain.cancelScheduledValues(now);state.rainGain.gain.setValueAtTime(Math.max(state.rainGain.gain.value,.0001),now);state.rainGain.gain.exponentialRampToValueAtTime(.0001,now+.35);state.rainSrc.stop(now+.38)}catch(e){}state.rainSrc=null;state.rainGain=null;state.rainFilter=null}
+      function loadVoices(){if("speechSynthesis" in window)state.voices=window.speechSynthesis.getVoices()||[]}
+      function speakText(text,opt={}){if(state.muted||state.paused||!("speechSynthesis" in window))return;try{if(opt.cancel!==false)window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);loadVoices();const lang=voiceLang();const v=state.voices.find(x=>(x.lang||"").toLowerCase().startsWith(lang.toLowerCase().slice(0,2)));if(v)u.voice=v;u.lang=lang;u.rate=opt.rate??.9;u.pitch=opt.pitch??.95;u.volume=opt.volume??.62;window.speechSynthesis.speak(u)}catch(e){}}
+      function stopVoice(){if("speechSynthesis" in window){try{window.speechSynthesis.cancel()}catch(e){}}}
+      function stopAllAudio(){stopVoice();stopBreathAmbience();stopRainSound()}
+      function vibrate(ms=18){if(navigator.vibrate)navigator.vibrate(ms)}
+
+      function clearAllTimers(){[state.timer,state.spawner,state.breathTimer,state.rainTimer,state.stretchTimer].forEach(x=>{clearInterval(x);clearTimeout(x)});state.timer=state.spawner=state.breathTimer=state.rainTimer=state.stretchTimer=null}
+      function cleanupGame(){clearAllTimers();state.paused=false;stopAllAudio();playArea.classList.remove("breath-area");playArea.innerHTML=""}
+      function showScreen(name){Object.values(screens).forEach(s=>s.classList.remove("active"));screens[name].classList.add("active");if(name!=="game")cleanupGame();if(name==="home")updateHome();const footer=$("#creatorFooter");if(footer)footer.classList.toggle("is-hidden",name==="loading"||name==="game");pauseModal.classList.remove("active")}
+      function showOnlyGame(){Object.values(screens).forEach(s=>s.classList.remove("active"));screens.game.classList.add("active");const footer=$("#creatorFooter");if(footer)footer.classList.add("is-hidden")}
+      function startMode(mode){unlockAudio();cleanupGame();state.currentMode=mode;state.stage=mode;state.lastMode=mode;state.score=0;state.calm=0;state.timeLeft=modes[mode].duration;state.breathRound=1;state.stretchIndex=0;state.paused=false;gameTitle.textContent=t(modes[mode].key);scoreText.textContent="0";timerText.textContent=state.timeLeft;calmText.textContent="0";timerWrap.classList.toggle("hidden",mode==="breath");calmWrap.classList.toggle("hidden",mode!=="breath");muteBtn.textContent=state.muted?"🔇":"🔊";showOnlyGame();if(mode==="emotion")startEmotion();if(mode==="breath")startBreath();if(mode==="pillow")startPillow();if(mode==="focus")startFocus()}
+      function restartCurrentMode(){pauseModal.classList.remove("active");startMode(state.lastMode)}
+      function startCountdown(onEnd){timerText.textContent=state.timeLeft;state.timer=setInterval(()=>{if(state.paused)return;state.timeLeft--;timerText.textContent=state.timeLeft;if(state.timeLeft<=0){clearInterval(state.timer);state.timer=null;onEnd()}},1000)}
+      function makeMessage(text){const m=document.createElement("div");m.className="mode-message";m.textContent=text;playArea.appendChild(m);return m}
+      function safePos(size){const r=playArea.getBoundingClientRect(),top=66;return{x:rand(8,Math.max(10,r.width-size-8)),y:rand(top,Math.max(top+4,r.height-size-8))}}
+      function particles(x,y,count=12){for(let i=0;i<count;i++){const p=document.createElement("span");p.className="particle";p.style.left=x+"px";p.style.top=y+"px";p.style.setProperty("--x",rand(-58,58)+"px");p.style.setProperty("--y",rand(-58,58)+"px");p.style.background=pick(["rgba(255,255,255,.92)","rgba(100,231,255,.88)","rgba(255,159,199,.88)","rgba(156,245,207,.88)"]);playArea.appendChild(p);setTimeout(()=>p.remove(),760)}}
+      function floatingText(text,x,y,cls="pop-text"){const el=document.createElement("div");el.className=cls;el.textContent=text;el.style.left=clamp(x,10,playArea.clientWidth-40)+"px";el.style.top=clamp(y,48,playArea.clientHeight-50)+"px";el.style.transform="translateX(-50%)";playArea.appendChild(el);setTimeout(()=>el.remove(),cls==="provocation"?1300:1050)}
+      function addScore(n){state.score+=n;scoreText.textContent=state.score}
+
+      function spawnBubble(){if(state.paused||state.currentMode!=="emotion")return;const item=pick(bubbles),size=rand(70,108),pos=safePos(size),el=document.createElement("button");el.className="bubble";el.style.width=size+"px";el.style.height=size+"px";el.style.left=pos.x+"px";el.style.top=pos.y+"px";const label=state.lang==="zh"?item[3]:state.lang==="en"?item[2]:item[1];el.innerHTML=`<span>${item[0]}<small>${label}</small></span>`;playArea.appendChild(el);let gone=false;const remove=()=>{if(gone)return;gone=true;el.classList.add("bubble-out");setTimeout(()=>el.remove(),180)};el.addEventListener("pointerdown",e=>{e.preventDefault();if(state.paused)return;const r=el.getBoundingClientRect(),a=playArea.getBoundingClientRect(),cx=r.left-a.left+r.width/2,cy=r.top-a.top+r.height/2;addScore(10);playPopSound();playAwSound();vibrate(14);particles(cx,cy,14);floatingText(pick(arr("positive")),cx,cy);remove()},{passive:false});setTimeout(remove,rand(3600,5600))}
+      function startEmotion(){playArea.innerHTML="";makeMessage(t("emotionMsg"));for(let i=0;i<4;i++)setTimeout(spawnBubble,i*450);state.spawner=setInterval(spawnBubble,850);startCountdown(()=>finishGame(t("emotionEnd")))}
+
+      function startBreath(){state.stage="breath";playArea.innerHTML="";playArea.classList.add("breath-area");startBreathAmbience();timerWrap.classList.add("hidden");calmWrap.classList.remove("hidden");const round=document.createElement("div");round.className="round-pill";round.id="roundText";const circle=document.createElement("button");circle.className="breath-circle inhale";circle.innerHTML=`<div class="breath-inner" id="breathText">${t("inhale")}</div>`;const cap=document.createElement("p");cap.className="breath-caption";cap.textContent=t("voiceNote");const done=document.createElement("button");done.className="btn mint";done.textContent=t("skip");playArea.append(round,circle,cap,done);speakText(t("breathIntro"),{rate:.88,pitch:.95,volume:.62});let phaseIndex=0;const phases=[{key:"inhale",text:"inhale",ms:4000,voice:"breathInVoice"},{key:"hold",text:"hold",ms:2000,voice:"breathHoldVoice"},{key:"exhale",text:"exhale",ms:6000,voice:"breathOutVoice"}];function setPhase(){if(state.currentMode!=="breath"||state.stage!=="breath")return;const p=phases[phaseIndex%3];state.breathPhase=p.key;circle.className="breath-circle "+p.key;$("#breathText").textContent=t(p.text);$("#roundText").textContent=`${t("round")}: ${state.breathRound} / 3`;if(!state.paused)speakText(t(p.voice),{rate:.88,pitch:.94,volume:.62});state.breathTimer=setTimeout(()=>{if(state.paused)return;if(p.key==="exhale"){state.breathRound++;if(state.breathRound>3){startRainStage();return}}phaseIndex++;setPhase()},p.ms)}circle.addEventListener("pointerdown",e=>{e.preventDefault();if(state.paused)return;state.calm++;state.score+=3;calmText.textContent=state.calm;scoreText.textContent=state.score;const r=circle.getBoundingClientRect(),a=playArea.getBoundingClientRect();particles(r.left-a.left+r.width/2,r.top-a.top+r.height/2,8);floatingText("+ calm",r.left-a.left+r.width/2,r.top-a.top+20);playUISound()},{passive:false});done.addEventListener("click",startRainStage);setPhase()}
+      function createRainDrops(container){for(let i=0;i<42;i++){const d=document.createElement("span");d.className="rain-drop";d.style.left=rand(0,100)+"%";d.style.animationDuration=rand(.9,1.8)+"s";d.style.animationDelay=rand(-2,0)+"s";d.style.opacity=rand(.25,.75);container.appendChild(d)}}
+      function startRainStage(){clearTimeout(state.breathTimer);stopVoice();stopBreathAmbience();state.stage="rain";state.timeLeft=120;timerWrap.classList.remove("hidden");calmWrap.classList.add("hidden");timerText.textContent=state.timeLeft;playArea.classList.remove("breath-area");playArea.innerHTML="";const wrap=document.createElement("div");wrap.className="rain-stage";wrap.innerHTML=`<h2 class="stage-title">${t("rainTitle")}</h2><p class="stage-desc">${t("rainDesc")}</p><div class="rain-timer" id="rainTimerText">120s</div><button class="btn mint" id="skipRain">${t("skip")}</button>`;playArea.appendChild(wrap);createRainDrops(wrap);startRainSound();speakText(t("rainVoice"),{rate:.88,pitch:.95,volume:.55});state.rainTimer=setInterval(()=>{if(state.paused)return;state.timeLeft--;timerText.textContent=state.timeLeft;$("#rainTimerText").textContent=state.timeLeft+"s";if(state.timeLeft<=0){clearInterval(state.rainTimer);state.rainTimer=null;startStretchStage()}},1000);$("#skipRain").addEventListener("click",startStretchStage)}
+      function startStretchStage(){clearInterval(state.rainTimer);state.rainTimer=null;stopRainSound();stopVoice();state.stage="stretch";state.stretchIndex=0;timerWrap.classList.add("hidden");playArea.innerHTML="";renderStretch()}
+      function renderStretch(){const steps=arr("stretch");if(state.stretchIndex>=steps.length){finishGame(t("breathEnd"));return}playArea.innerHTML="";const card=document.createElement("div");card.className="stretch-stage";card.innerHTML=`<div class="stretch-card glass"><div class="stretch-character">🧘‍♂️</div><h2 class="stage-title">${t("stretchTitle")}</h2><p class="stretch-count">${state.stretchIndex+1} / ${steps.length}</p><div class="stretch-step">${steps[state.stretchIndex]}</div><div class="btn-row" style="justify-content:center"><button class="btn mint" id="nextStretch">${t("next")}</button><button class="btn secondary" id="skipStretch">${t("skip")}</button><button class="btn secondary" id="finishStretch">${t("finish")}</button></div></div>`;playArea.appendChild(card);speakText(steps[state.stretchIndex],{rate:.9,pitch:.96,volume:.58});state.stretchTimer=setTimeout(()=>{if(!state.paused){state.stretchIndex++;renderStretch()}},9000);$("#nextStretch").addEventListener("click",()=>{clearTimeout(state.stretchTimer);state.stretchIndex++;renderStretch()});$("#skipStretch").addEventListener("click",()=>{clearTimeout(state.stretchTimer);finishGame(t("breathEnd"))});$("#finishStretch").addEventListener("click",()=>{clearTimeout(state.stretchTimer);finishGame(t("breathEnd"))})}
+
+      function startPillow(){playArea.innerHTML="";state.timeLeft=120;timerWrap.classList.remove("hidden");timerText.textContent=state.timeLeft;makeMessage(t("pillowMsg"));const wrap=document.createElement("div");wrap.className="pillow-area";const counter=document.createElement("div");counter.className="big-counter";counter.innerHTML=`${t("score")}: <b id="pillowCounter">0</b>`;const pillow=document.createElement("button");pillow.className="pillow";pillow.innerHTML="🧸";const hint=document.createElement("p");hint.className="breath-caption";hint.textContent=t("modePillowDesc");wrap.append(counter,pillow,hint);playArea.appendChild(wrap);let hits=0;pillow.addEventListener("pointerdown",e=>{e.preventDefault();if(state.paused)return;hits++;addScore(10);$("#pillowCounter").textContent=hits;pillow.classList.remove("hit");void pillow.offsetWidth;pillow.classList.add("hit");const r=pillow.getBoundingClientRect(),a=playArea.getBoundingClientRect(),x=e.clientX-a.left,y=e.clientY-a.top;particles(x,y,10);floatingText(pick(arr("pillow")),r.left-a.left+r.width/2,r.top-a.top+20);playPillowSound();vibrate(20);if(hits%15===0){const msg=pick(arr("provoke"));pillow.classList.remove("provoke");void pillow.offsetWidth;pillow.classList.add("provoke");floatingText(msg,playArea.clientWidth/2,playArea.clientHeight*.20,"provocation");playProvokeSound();speakText(msg,{rate:1.02,pitch:1.05,volume:.55,cancel:true})}},{passive:false});startCountdown(()=>finishGame(t("pillowEnd")))}
+      function placeOrb(orb){const size=Math.max(76,Math.min(116,playArea.clientWidth*.16)),pos=safePos(size);orb.style.left=pos.x+"px";orb.style.top=pos.y+"px"}
+      function startFocus(){playArea.innerHTML="";makeMessage(t("focusMsg"));const orb=document.createElement("button");orb.className="orb";playArea.appendChild(orb);setTimeout(()=>placeOrb(orb),40);orb.addEventListener("pointerdown",e=>{e.preventDefault();if(state.paused)return;const r=orb.getBoundingClientRect(),a=playArea.getBoundingClientRect(),cx=r.left-a.left+r.width/2,cy=r.top-a.top+r.height/2;addScore(5);particles(cx,cy,12);floatingText("+5",cx,cy);playOrbSound();vibrate(12);placeOrb(orb)},{passive:false});startCountdown(()=>finishGame(t("focusEnd")))}
+
+      function finishGame(message){const mode=state.currentMode,score=state.score;cleanupGame();state.totalGames++;store.setItem("sdl_total_games",String(state.totalGames));const allHigh=parseInt(store.getItem("sdl_high_all")||"0",10),modeHigh=parseInt(store.getItem(modes[mode].highKey)||"0",10);let highText=t("highSafe"),isHigh=false;if(score>allHigh){store.setItem("sdl_high_all",String(score));highText=t("highNew");isHigh=true}if(score>modeHigh){store.setItem(modes[mode].highKey,String(score));highText+=t("highMode");isHigh=true}$("#resultMode").textContent=t(modes[mode].key);$("#resultScore").textContent=score;$("#resultTitle").textContent=score>0?t("resultOk"):t("resultStay");$("#resultMessage").textContent=message;$("#resultHighInfo").textContent=highText;$("#resultQuote").textContent=pick(arr("quotes"));showScreen("result");playSuccessSound(isHigh)}
+      function pauseGame(){if(!state.currentMode)return;state.paused=true;stopVoice();stopBreathAmbience();stopRainSound();pauseModal.classList.add("active")}
+      function resumeGame(){state.paused=false;pauseModal.classList.remove("active");if(state.currentMode==="breath"&&state.stage==="breath"){startBreathAmbience();const key=state.breathPhase==="inhale"?"breathInVoice":state.breathPhase==="hold"?"breathHoldVoice":"breathOutVoice";speakText(t(key),{rate:.88,pitch:.94,volume:.62})}if(state.currentMode==="breath"&&state.stage==="rain"){startRainSound()}}
+      function toggleMute(){unlockAudio();state.muted=!state.muted;store.setItem("sdl_muted",state.muted?"1":"0");if(state.muted){stopAllAudio()}else{playUISound();if(state.currentMode==="breath"&&state.stage==="breath")startBreathAmbience();if(state.currentMode==="breath"&&state.stage==="rain")startRainSound()}updateHome()}
+
+      function addRipple(e){unlockAudio();const btn=e.currentTarget;if(btn&&btn.id!=="muteBtn")playUISound();const r=btn.getBoundingClientRect(),s=Math.max(r.width,r.height),span=document.createElement("span");span.className="ripple";span.style.width=span.style.height=s+"px";span.style.left=(e.clientX-r.left-s/2)+"px";span.style.top=(e.clientY-r.top-s/2)+"px";btn.appendChild(span);setTimeout(()=>span.remove(),600)}
+      function bindEvents(){
+        document.addEventListener("pointerdown",e=>{if(e.target.closest("button,.lang-select"))unlockAudio()},{passive:true});
+        $$(".btn,.pill-btn").forEach(btn=>btn.addEventListener("pointerdown",addRipple));
+        document.addEventListener("click",e=>{
+          const screenBtn=e.target.closest("[data-screen]"),startBtn=e.target.closest("[data-start]"),actionBtn=e.target.closest("[data-action]");
+          if(screenBtn){const target=screenBtn.dataset.screen;if(target!=="game")cleanupGame();showScreen(target)}
+          if(startBtn)startMode(startBtn.dataset.start);
+          if(actionBtn&&actionBtn.dataset.action==="start-default")startMode("emotion");
+        });
+        $("#pauseBtn").addEventListener("click",pauseGame);
+        $("#resumeBtn").addEventListener("click",resumeGame);
+        $("#restartBtn").addEventListener("click",restartCurrentMode);
+        $("#homeBtn").addEventListener("click",()=>showScreen("home"));
+        muteBtn.addEventListener("click",toggleMute);
+        $("#audioToggleHome").addEventListener("click",toggleMute);
+        $("#againBtn").addEventListener("click",()=>startMode(state.lastMode));
+        $$(".lang-chip").forEach(btn=>btn.addEventListener("click",()=>setLanguage(btn.dataset.lang)));
+        document.addEventListener("visibilitychange",()=>{if(document.hidden&&screens.game.classList.contains("active"))pauseGame()});
+        window.addEventListener("resize",()=>{const orb=$(".orb");if(orb&&state.currentMode==="focus")placeOrb(orb)});
+        if("speechSynthesis" in window){loadVoices();window.speechSynthesis.onvoiceschanged=loadVoices}
+      }
+
+      bindEvents();
+      const initialFooter=$("#creatorFooter");if(initialFooter)initialFooter.classList.add("is-hidden");
+      setLanguage(state.lang);
+      setTimeout(()=>showScreen("home"),2450);
+      setTimeout(()=>{if(screens.loading.classList.contains("active"))showScreen("home")},3600);
+    })();
+  </script>
+</body>
+</html>

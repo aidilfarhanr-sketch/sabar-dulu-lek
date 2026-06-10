@@ -174,35 +174,7 @@ Beberapa keunggulan dari game ini:
 - Tampilan responsive di berbagai perangkat
 - Semua fitur utama berada dalam satu file HTML
 
----
 
-## Cara Menjalankan Project Secara Lokal
-
-### 1. Download atau clone repository
-
-```bash
-git clone https://github.com/username/nama-repository.git
-```
-
-Ganti `username/nama-repository` dengan link repository GitHub kamu.
-
-### 2. Masuk ke folder project
-
-```bash
-cd nama-repository
-```
-
-### 3. Jalankan file index.html
-
-Buka file:
-
-```bash
-index.html
-```
-
-Kamu bisa langsung klik dua kali file tersebut, atau menggunakan extension **Live Server** di Visual Studio Code.
-
----
 
 ## Struktur Project
 
@@ -217,17 +189,7 @@ Keterangan:
 - `index.html` berisi seluruh struktur game, desain, animasi, audio, dan logic permainan.
 - `README.md` berisi dokumentasi project untuk GitHub.
 
----
 
-## Cara Upload ke GitHub
-
-### 1. Buat repository baru di GitHub
-
-Contoh nama repository:
-
-```bash
-sabar-dulu-lek
-```
 
 ### 2. Upload file project
 
